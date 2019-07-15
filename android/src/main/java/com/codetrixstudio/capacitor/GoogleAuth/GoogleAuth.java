@@ -26,8 +26,11 @@ public class GoogleAuth extends Plugin {
 
   @Override
   public void load() {
-    String clientId = this.getContext().getString(R.string.server_client_id);
-    boolean forceCodeForRefreshToken = false;
+    String clientId = "";
+    try {
+      clientId = (String) getConfigValue("serverClientId");
+    } catch (Exception ex) {}
+    Boolean forceCodeForRefreshToken = false;
 
     Boolean forceRefreshToken = (Boolean) getConfigValue("forceCodeForRefreshToken");
     if (forceRefreshToken != null) {
@@ -39,11 +42,12 @@ public class GoogleAuth extends Plugin {
     }
 
     GoogleSignInOptions.Builder googleSignInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(clientId)
             .requestEmail();
 
-    if (forceCodeForRefreshToken) {
-      googleSignInBuilder.requestServerAuthCode(clientId, true);
+    if (!clientId.equals("")) {
+      googleSignInBuilder = googleSignInBuilder
+              .requestServerAuthCode(clientId, forceCodeForRefreshToken)
+              .requestIdToken(clientId);
     }
 
     try {
