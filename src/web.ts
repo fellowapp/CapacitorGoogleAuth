@@ -1,6 +1,9 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleAuthPlugin, InitOptions, User } from './definitions';
 
+// @ts-ignore
+import config from '../../../../../capacitor.config.json';
+
 export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
   gapiLoaded: Promise<void>;
   options: InitOptions;
@@ -70,12 +73,12 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     gapi.load('auth2', () => {
       // https://github.com/CodetrixStudio/CapacitorGoogleAuth/issues/202#issuecomment-1147393785
       const clientConfig: gapi.auth2.ClientConfig & { plugin_name: string } = {
-        client_id: this.options.clientId,
+        client_id: (document.getElementsByName('google-signin-client_id')[0] as any).content,
         plugin_name: 'CodetrixStudioCapacitorGoogleAuth',
       };
 
-      if (this.options.scopes.length) {
-        clientConfig.scope = this.options.scopes.join(' ');
+      if (config.plugins.GoogleAuth != null && config.plugins.GoogleAuth.scopes != null) {
+        clientConfig.scope = config.plugins.GoogleAuth.scopes.join(' ');
       }
 
       gapi.auth2.init(clientConfig);
@@ -87,7 +90,11 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     return new Promise<User>(async (resolve, reject) => {
       try {
         let serverAuthCode: string;
-        const needsOfflineAccess = this.options.grantOfflineAccess ?? false;
+        var needsOfflineAccess = false;
+
+        try {
+          needsOfflineAccess = config.plugins.GoogleAuth.serverClientId != null;
+        } catch {}
 
         if (needsOfflineAccess) {
           const offlineAccessResponse = await gapi.auth2.getAuthInstance().grantOfflineAccess();
@@ -103,8 +110,11 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
           await googleUser.reloadAuthResponse();
         }
 
-        const user = this.getUserFrom(googleUser);
-        user.serverAuthCode = serverAuthCode;
+        const user = {
+          ...this.getUserFrom(googleUser),
+          serverAuthCode: serverAuthCode
+        };
+
         resolve(user);
       } catch (error) {
         reject(error);
@@ -133,21 +143,21 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
   }
 
   private getUserFrom(googleUser: gapi.auth2.GoogleUser) {
-    const user = {} as User;
     const profile = googleUser.getBasicProfile();
-
-    user.email = profile.getEmail();
-    user.familyName = profile.getFamilyName();
-    user.givenName = profile.getGivenName();
-    user.id = profile.getId();
-    user.imageUrl = profile.getImageUrl();
-    user.name = profile.getName();
-
     const authResponse = googleUser.getAuthResponse(true);
-    user.authentication = {
-      accessToken: authResponse.access_token,
-      idToken: authResponse.id_token,
-      refreshToken: '',
+
+    const user = {
+      email: profile.getEmail(),
+      familyName: profile.getFamilyName(),
+      givenName: profile.getGivenName(),
+      id: profile.getId(),
+      imageUrl: profile.getImageUrl(),
+      name: profile.getName(),
+      authentication: {
+        accessToken: authResponse.access_token,
+        idToken: authResponse.id_token,
+        refreshToken: '',
+      }
     };
 
     return user;
