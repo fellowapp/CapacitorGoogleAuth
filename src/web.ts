@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleAuthPlugin } from './definitions';
-import { User, Authentication } from './user';
+import { User } from './user';
 
 // @ts-ignore
 import config from '../../../../../capacitor.config.json';
@@ -57,8 +57,8 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     });
   }
 
-  async signIn(): Promise<any> {
-    return new Promise(async (resolve, reject) => {
+  async signIn() {
+    return new Promise<User>(async (resolve, reject) => {
       try {
         var serverAuthCode: string;
         var needsOfflineAccess = false;
@@ -92,7 +92,7 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     });
   }
 
-  async refresh(): Promise<Authentication> {
+  async refresh() {
     const authResponse = await gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse()
     return {
       accessToken: authResponse.access_token,
@@ -100,7 +100,7 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     }
   }
 
-  async signOut(): Promise<any> {
+  async signOut() {
     return gapi.auth2.getAuthInstance().signOut();
   }
 
