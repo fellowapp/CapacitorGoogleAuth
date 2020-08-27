@@ -86,7 +86,7 @@ export interface InitOptions extends Pick<GoogleAuthPluginOptions, 'scopes' | 'c
 export interface GoogleAuthPlugin {
   signIn(): Promise<User>;
   refresh(): Promise<Authentication>;
-  signOut(): Promise<any>;
+  signOut(): Promise<void>;
 
   /**
    * Init hook for load gapi and init plugin
