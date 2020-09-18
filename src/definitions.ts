@@ -1,4 +1,4 @@
-import { User, Authentication } from "./user";
+import { User, WebAuthentication, iOSAuthentication } from "./user";
 
 declare module "@capacitor/core" {
   interface PluginRegistry {
@@ -6,13 +6,9 @@ declare module "@capacitor/core" {
   }
 }
 
-/** On iOS, refresh returns an extra field */
-interface RefreshData extends Authentication {
-  refreshToken?: string;
-}
-
 export interface GoogleAuthPlugin {
   signIn(): Promise<User>;
-  refresh(): Promise<RefreshData>;
+  /** Implemented on Web and iOS, not Android */
+  refresh(): Promise<WebAuthentication | iOSAuthentication>;
   signOut(): Promise<void>;
 }

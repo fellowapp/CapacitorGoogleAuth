@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleAuthPlugin } from './definitions';
-import { User } from './user';
+import { WebUser } from './user';
 
 // @ts-ignore
 import config from '../../../../../capacitor.config.json';
@@ -58,7 +58,7 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
   }
 
   async signIn() {
-    return new Promise<User>(async (resolve, reject) => {
+    return new Promise<WebUser>(async (resolve, reject) => {
       try {
         var serverAuthCode: string;
         var needsOfflineAccess = false;
@@ -83,8 +83,11 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
           await googleUser.reloadAuthResponse();
         }
 
-        const user = this.getUserFrom(googleUser);
-        user.serverAuthCode = serverAuthCode;
+        const user = {
+          ...this.getUserFrom(googleUser),
+          serverAuthCode: serverAuthCode
+        };
+
         resolve(user);
       } catch (error) {
         reject(error);
@@ -111,22 +114,22 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
     });
   }
 
-  private getUserFrom(googleUser: gapi.auth2.GoogleUser): User {
-    const user = {} as User;
+  private getUserFrom(googleUser: gapi.auth2.GoogleUser) {
     const profile = googleUser.getBasicProfile();
-
-    user.email = profile.getEmail();
-    user.familyName = profile.getFamilyName();
-    user.givenName = profile.getGivenName();
-    user.id = profile.getId();
-    user.imageUrl = profile.getImageUrl();
-    user.name = profile.getName();
-
     const authResponse = googleUser.getAuthResponse(true);
-    user.authentication = {
-      accessToken: authResponse.access_token,
-      idToken: authResponse.id_token
-    }
+
+    const user = {
+      email: profile.getEmail(),
+      familyName: profile.getFamilyName(),
+      givenName: profile.getGivenName(),
+      id: profile.getId(),
+      imageUrl: profile.getImageUrl(),
+      name: profile.getName(),
+      authentication: {
+        accessToken: authResponse.access_token,
+        idToken: authResponse.id_token
+      }
+    };
 
     return user;
   }
