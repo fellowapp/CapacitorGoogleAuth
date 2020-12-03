@@ -31,6 +31,9 @@ public class GoogleAuth: CAPPlugin {
         if let forceAuthCodeConfig = getConfigValue("forceCodeForRefreshToken") as? Bool {
             forceAuthCode = forceAuthCodeConfig;
         }
+        if let forceAuthCodeConfig = getConfigValue("forceCodeForRefreshTokenIOS") as? Bool {
+            forceAuthCode = forceAuthCodeConfig;
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(handleOpenUrl(_ :)), name: Notification.Name(CAPNotifications.URLOpen.name()), object: nil);
     }
 
