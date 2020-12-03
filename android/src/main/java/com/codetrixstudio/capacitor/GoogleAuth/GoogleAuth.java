@@ -33,6 +33,10 @@ public class GoogleAuth extends Plugin {
     if (forceRefreshToken != null) {
       forceCodeForRefreshToken = forceRefreshToken;
     }
+    Boolean forceRefreshTokenAndroidSpecific = (Boolean) getConfigValue("forceCodeForRefreshTokenAndroid");
+    if (forceRefreshToken != null) {
+      forceCodeForRefreshToken = forceRefreshTokenAndroidSpecific;
+    }
 
     GoogleSignInOptions.Builder googleSignInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(clientId)
