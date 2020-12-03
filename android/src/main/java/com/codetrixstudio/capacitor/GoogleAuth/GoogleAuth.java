@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -53,11 +54,17 @@ public class GoogleAuth extends Plugin {
 
   @Override
   public void load() {
-    String clientId = getConfig().getString("androidClientId",
-      getConfig().getString("clientId",
-        this.getContext().getString(R.string.server_client_id)));
+    String clientId = this.getContext().getString(R.string.server_client_id);
+    boolean forceCodeForRefreshToken = false;
 
-    boolean forceCodeForRefreshToken = getConfig().getBoolean("forceCodeForRefreshToken", false);
+    Boolean forceRefreshToken = (Boolean) getConfigValue("forceCodeForRefreshToken");
+    if (forceRefreshToken != null) {
+      forceCodeForRefreshToken = forceRefreshToken;
+    }
+    Boolean forceRefreshTokenAndroidSpecific = (Boolean) getConfigValue("forceCodeForRefreshTokenAndroid");
+    if (forceRefreshToken != null) {
+      forceCodeForRefreshToken = forceRefreshTokenAndroidSpecific;
+    }
 
     GoogleSignInOptions.Builder googleSignInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(clientId)
@@ -67,13 +74,17 @@ public class GoogleAuth extends Plugin {
       googleSignInBuilder.requestServerAuthCode(clientId, true);
     }
 
-    String[] scopeArray = getConfig().getArray("scopes", new String[] {});
-    Scope[] scopes = new Scope[scopeArray.length - 1];
-    Scope firstScope = new Scope(scopeArray[0]);
-    for (int i = 1; i < scopeArray.length; i++) {
-      scopes[i - 1] = new Scope(scopeArray[i]);
+    try {
+      JSONArray scopeArray = (JSONArray) getConfigValue("scopes");
+      Scope[] scopes = new Scope[scopeArray.length() - 1];
+      Scope firstScope = new Scope(scopeArray.getString(0));
+      for (int i = 1; i < scopeArray.length(); i++) {
+        scopes[i - 1] = new Scope(scopeArray.getString(i));
+      }
+      googleSignInBuilder.requestScopes(firstScope, scopes);
+    } catch (JSONException e) {
+      e.printStackTrace();
     }
-    googleSignInBuilder.requestScopes(firstScope, scopes);
 
     GoogleSignInOptions googleSignInOptions = googleSignInBuilder.build();
     googleSignInClient = GoogleSignIn.getClient(this.getContext(), googleSignInOptions);
