@@ -34,7 +34,7 @@ public class GoogleAuth extends Plugin {
       forceCodeForRefreshToken = forceRefreshToken;
     }
     Boolean forceRefreshTokenAndroidSpecific = (Boolean) getConfigValue("forceCodeForRefreshTokenAndroid");
-    if (forceRefreshToken != null) {
+    if (forceRefreshTokenAndroidSpecific != null) {
       forceCodeForRefreshToken = forceRefreshTokenAndroidSpecific;
     }
 
