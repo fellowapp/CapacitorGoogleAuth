@@ -13,11 +13,11 @@
   "author": "CodetrixStudio",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/core": "latest"
+    "@capacitor/core": "^2.4.7"
   },
   "devDependencies": {
-    "@capacitor/android": "latest",
-    "@capacitor/ios": "latest",
+    "@capacitor/android": "^2.4.7",
+    "@capacitor/ios": "^2.4.7",
     "@types/gapi": "0.0.36",
     "@types/gapi.auth2": "0.0.50",
     "typescript": "^3.2.4"
