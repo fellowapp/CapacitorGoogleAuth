@@ -8,7 +8,8 @@
     "build": "npm run clean && tsc",
     "clean": "rm -rf ./dist",
     "watch": "tsc --watch",
-    "test": "echo \"no test specified\""
+    "test": "echo \"no test specified\"",
+    "docgen": "docgen --api GoogleAuthPlugin --output-readme README.md"
   },
   "author": "CodetrixStudio",
   "license": "MIT",
@@ -16,6 +17,7 @@
     "@capacitor/android": "^5.0.4",
     "@capacitor/cli": "^5.0.4",
     "@capacitor/core": "^5.0.4",
+    "@capacitor/docgen": "^0.2.1",
     "@capacitor/ios": "^5.0.4",
     "@ionic/prettier-config": "^2.0.0",
     "@types/gapi": "0.0.42",
