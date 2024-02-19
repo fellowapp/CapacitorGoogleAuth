@@ -31,16 +31,12 @@ public class GoogleAuth: CAPPlugin {
         let defaultGrantedScopes = ["email", "profile", "openid"];
 
         // these are scopes we will need to request after sign in
-        additionalScopes = (getConfigValue("scopes") as? [String] ?? []).filter {
+        additionalScopes = (getConfig().getArray("scopes") as? [String] ?? []).filter {
             return !defaultGrantedScopes.contains($0);
         };
 
-        if let forceAuthCodeConfig = getConfigValue("forceCodeForRefreshToken") as? Bool {
-            forceAuthCode = forceAuthCodeConfig;
-        }
-        if let forceAuthCodeConfig = getConfigValue("forceCodeForRefreshTokenIOS") as? Bool {
-            forceAuthCode = forceAuthCodeConfig;
-        }
+        forceAuthCode = getConfig().getBoolean("forceCodeForRefreshToken", false)
+        forceAuthCode = getConfig().getBoolean("forceCodeForRefreshTokenIOS", forceAuthCode)
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleOpenUrl(_ :)), name: Notification.Name(CAPNotifications.URLOpen.name()), object: nil);
     }
@@ -121,10 +117,10 @@ public class GoogleAuth: CAPPlugin {
 
 
     func getClientIdValue() -> String? {
-        if let clientId = getConfigValue("iosClientId") as? String {
+        if let clientId = getConfig().getString("iosClientId") {
             return clientId;
         }
-        else if let clientId = getConfigValue("clientId") as? String {
+        else if let clientId = getConfig().getString("clientId") {
             return clientId;
         }
         else if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
@@ -136,7 +132,7 @@ public class GoogleAuth: CAPPlugin {
     }
 
     func getServerClientIdValue() -> String? {
-        if let serverClientId = getConfigValue("serverClientId") as? String {
+        if let serverClientId = getConfig().getString("serverClientId") {
             return serverClientId;
         }
         return nil;
