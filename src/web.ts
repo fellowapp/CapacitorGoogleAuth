@@ -1,9 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleAuthPlugin, InitOptions, User } from './definitions';
 
-// @ts-ignore
-import config from '../../../../../capacitor.config.json';
-
 export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
   gapiLoaded: Promise<void>;
   options: InitOptions;
@@ -77,9 +74,12 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
         plugin_name: 'CodetrixStudioCapacitorGoogleAuth',
       };
 
-      if (config.plugins.GoogleAuth != null && config.plugins.GoogleAuth.scopes != null) {
-        clientConfig.scope = config.plugins.GoogleAuth.scopes.join(' ');
-      }
+      clientConfig.scope = [
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/calendar.readonly',
+        'https://www.googleapis.com/auth/calendar.events',
+      ].join(' ');
 
       gapi.auth2.init(clientConfig);
       (window as any).gapiResolve();
@@ -93,7 +93,8 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
         var needsOfflineAccess = false;
 
         try {
-          needsOfflineAccess = config.plugins.GoogleAuth.serverClientId != null;
+          // needsOfflineAccess = config.plugins.GoogleAuth.serverClientId != null;
+          needsOfflineAccess = true;
         } catch {}
 
         if (needsOfflineAccess) {
@@ -112,7 +113,7 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
 
         const user = {
           ...this.getUserFrom(googleUser),
-          serverAuthCode: serverAuthCode
+          serverAuthCode: serverAuthCode,
         };
 
         resolve(user);
@@ -157,7 +158,7 @@ export class GoogleAuthWeb extends WebPlugin implements GoogleAuthPlugin {
         accessToken: authResponse.access_token,
         idToken: authResponse.id_token,
         refreshToken: '',
-      }
+      },
     };
 
     return user;
